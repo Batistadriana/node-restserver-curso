@@ -48,6 +48,18 @@ let usuarioSchema = new Schema({
 
 });
 
+//No regresar contraseña, no vamos a usar arrow function
+
+usuarioSchema.methods.toJSON = function(){
+
+    let user = this;
+    let userObjet = user.toObject();
+    delete userObjet.password;
+
+    return userObjet;
+}
+
+
 //Decirle al schema que use un plugin en particular
 
 usuarioSchema.plugin( uniqueValidator, {

@@ -1,4 +1,8 @@
 const express = require('express');
+
+const bcrypt = require('bcrypt');
+const _ = require('underscore');
+
 const Usuario = require('../models/usuario');
 const app = express();
 
@@ -13,7 +17,7 @@ app.get('/usuario', function (req, res) {
       let usuario = new Usuario({
         nombre: body.nombre,
         email: body.email,
-        password: body.password,
+        password: bcrypt.hashSync(body.password, 10),
         role: body.role
       });
 
@@ -28,6 +32,9 @@ app.get('/usuario', function (req, res) {
           });
         }
 
+        //quitar la contraseña de la respuesta en postman
+        //usuarioDB.password = null;
+
         res.json({
           ok: true,
           usuario: usuarioDB
@@ -41,10 +48,25 @@ app.get('/usuario', function (req, res) {
     app.put('/usuario/:id', function (req, res) {
        
       let id = req.params.id;
+      let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
+
+
+      Usuario.findByIdAndUpdate( id, body, { new: true, runValidators: true }, (err, usuarioDB) => {
+        
+        if( err ){
+          return res.status(400).json({
+            ok: false,
+            err
+          });
+        }
+        
+        res.json({
+                  ok: true,
+                  usuario: usuarioDB
+              });
+      
+      })
   
-      res.json({
-          id
-      });
     });
   
     app.delete('/usuario', function (req, res) {
