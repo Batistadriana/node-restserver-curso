@@ -7,7 +7,32 @@ const Usuario = require('../models/usuario');
 const app = express();
 
 app.get('/usuario', function (req, res) {
-    res.json('get usuario Local');
+
+  let desde = req.query.desde || 0;
+  desde = Number(desde);
+
+  let limite = req.query.limite || 5;
+  limite = Number(limite);
+  
+  Usuario.find({}) //esta vacío para que nos traiga todos los registros de esa colección
+      .skip(desde) //se salta los primeros 5      
+      .limit(limite) //límite de 5 registros
+      .exec((err, usuarios)=>{
+      
+         if (err){
+             return res.status(400).json({
+               ok: false,
+               err
+             });
+           }
+           
+           res.json({
+              ok: true,
+              usuarios
+           });
+         
+          })
+    
   });
   
   app.post('/usuario', function (req, res) {
